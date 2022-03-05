@@ -19,7 +19,7 @@ namespace _ExcelRebuildWF
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
-            ExcelActions.Rebuild();
+            ExcelActions.ReadExcel();
         }
     }
 }
