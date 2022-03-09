@@ -35,7 +35,7 @@ namespace _ExcelRebuildWF
         public string Покраска { get; set; }
         public string Тип_элемента { get; set; }
         public string Ориентация { get; set; }
-        public string Вес { get; set; }
+        public double Вес { get; set; }
         public string Маркер_нестандартной_панели { get; set; }
         public string Признак_типа_обшивки { get; set; }
         public string Цвет_покраски { get; set; }

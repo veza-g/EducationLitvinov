@@ -17,7 +17,7 @@ namespace _ExcelRebuildWF
             object[,] dataArr = null;
 
             EXL EX_WRITE = new EXL();
-            object[,] dataArr1 = null;
+            //object[,] dataArr1 = null;
 
             var listObjects = new List<ExcelObject>();
 
@@ -35,11 +35,14 @@ namespace _ExcelRebuildWF
 
                 Excel.Range Rng;
                 EX_DATA.App = new Excel.Application();
-                EX_DATA.WB = EX_DATA.App.Workbooks.Open(xlFileName);
-                EX_DATA.Sht = EX_DATA.WB.Worksheets[1];
+                EX_DATA.WBs = EX_DATA.App.Workbooks;
+                EX_DATA.WB = EX_DATA.WBs.Open(xlFileName);
+                EX_DATA.Shts = EX_DATA.WB.Worksheets;
+                EX_DATA.Sht = EX_DATA.Shts.Item[1];
+                EX_DATA.cell = EX_DATA.Sht.Cells[1, 1];
 
-                int iLastRow = EX_DATA.Sht.Cells[EX_DATA.Sht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row;
-                int iLastCol = EX_DATA.Sht.Cells[1, EX_DATA.Sht.Columns.Count].End[Excel.XlDirection.xlToLeft].Column;
+                int iLastRow = EX_DATA.cell[EX_DATA.Sht.Rows.Count, "A"].End[Excel.XlDirection.xlUp].Row;
+                int iLastCol = EX_DATA.cell[1, EX_DATA.Sht.Columns.Count].End[Excel.XlDirection.xlToLeft].Column;
 
                 Rng = (Excel.Range)EX_DATA.Sht.Range["A1", EX_DATA.Sht.Cells[iLastRow, iLastCol]];
 
@@ -47,33 +50,53 @@ namespace _ExcelRebuildWF
 
                 string[] arrCol = new string[iLastCol];
 
+                List<string> materials = new List<string>();
+
                 for (int i = 0; i < iLastRow; i++)
                 {
                     listObjects.Add(new ExcelObject());
 
-                    listObjects[i].Id = i;
-                    //if (EX_DATA.Sht.Cells[i + 1, "A"].Value != null)
-                    listObjects[i].Header = EX_DATA.Sht.Cells[i + 1, "A"].Value;
-                    //if(EX_DATA.Sht.Cells[i + 1, "B"].Value!=null)
-                    listObjects[i].Наименование = EX_DATA.Sht.Cells[i + 1, "B"].Value;
-                    listObjects[i].Обозначение = EX_DATA.Sht.Cells[i + 1, "C"].Value;
-                    if (EX_DATA.Sht.Cells[i + 1, "D"].Value.ToString() != null)
-                        listObjects[i].Количество = EX_DATA.Sht.Cells[i + 1, "D"].Value.ToString();
-                    listObjects[i].Материал = EX_DATA.Sht.Cells[i + 1, "E"].Value;
-                    listObjects[i].Размер = EX_DATA.Sht.Cells[i + 1, "H"].Value;
-                    if (EX_DATA.Sht.Cells[i + 1, "K"].Value != null)
-                        listObjects[i].Длина = EX_DATA.Sht.Cells[i + 1, "K"].Value.ToString();
-                    if (EX_DATA.Sht.Cells[i + 1, "AA"].Value != null)
-                        listObjects[i].Вес = EX_DATA.Sht.Cells[i + 1, "AA"].Value.ToString();
+                    //listObjects[i].Id = i;
+                    listObjects[i].Header = EX_DATA.cell[i + 1, "A"].Value;
+                    listObjects[i].Наименование = EX_DATA.cell[i + 1, "B"].Value;
+                    listObjects[i].Обозначение = EX_DATA.cell[i + 1, "C"].Value;
+                    if (EX_DATA.cell[i + 1, "D"].Value.ToString() != null)
+                        listObjects[i].Количество = EX_DATA.cell[i + 1, "D"].Value.ToString();
+                    listObjects[i].Материал = EX_DATA.cell[i + 1, "E"].Value;
+                    if (listObjects[i].Материал != null && !materials.Contains(listObjects[i].Материал))
+                    {
+                        materials.Add(listObjects[i].Материал);
+                    }
+                    listObjects[i].Размер = EX_DATA.cell[i + 1, "H"].Value;
+                    if (EX_DATA.cell[i + 1, "K"].Value != null)
+                        listObjects[i].Длина = EX_DATA.cell[i + 1, "K"].Value.ToString();
+                    if (EX_DATA.cell[i + 1, "AA"].Value != null && i !=0)
+                    {
+                        int number;
+                        bool isNumber = int.TryParse(EX_DATA.cell[i + 1, "AA"].Value.ToString().Trim(), out number);
+                        if (isNumber)
+                        {
+                            EX_DATA.cell[i + 1, "AA"].NumberFormat = "#,##0";
+                            EX_DATA.cell[i + 1, "AA"].Value = number;
+                            listObjects[i].Вес = EX_DATA.cell[i + 1, "AA"].Value;
+                        }
+                    }
+                        
                 }
                 EX_DATA.App.Quit();
+                Marshal.ReleaseComObject(EX_DATA.cell);
+                Marshal.ReleaseComObject(EX_DATA.Sht);
+                Marshal.ReleaseComObject(EX_DATA.Shts);
+                Marshal.ReleaseComObject(EX_DATA.WB);
+                Marshal.ReleaseComObject(EX_DATA.WBs);
+                Marshal.ReleaseComObject(EX_DATA.App);
 
                 EX_WRITE.App = new Excel.Application();
                 EX_WRITE.App.SheetsInNewWorkbook = 1;
                 EX_WRITE.WB = EX_WRITE.App.Workbooks.Add();
                 EX_WRITE.Sht = EX_WRITE.WB.Worksheets[1];
 
-                for (int i = 0; i < iLastRow; i++)
+                /*for (int i = 0; i < iLastRow; i++)
                 {
                     //for (int j = 0; j < iLastCol; j++)
                     {
@@ -88,21 +111,49 @@ namespace _ExcelRebuildWF
                         EX_WRITE.Sht.Range[$"{GetLetter(8)}{i + 1}"].Value = listObjects[i].Id;
 
                     }
+                }*/
+                int excelIndex = 0;
+                foreach (string material in materials)
+                {
+                    EX_WRITE.Sht.Range[$"{GetLetter(0)}{excelIndex + 1}"].Value = material;
+                    double materialSumm = 0;
+                    foreach (var listObject in listObjects)
+                    {
+                        if (listObject.Материал == material)
+                        {
+                            materialSumm += listObject.Вес;
+
+                        }
+                    }
+                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].NumberFormat = "#,##0";
+                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value = materialSumm;
+                    excelIndex++;
                 }
+
+
+
+
                 EX_WRITE.WB.SaveAs(@"C:\Users\litvinov.ls\Documents\Book1.xlsx");
-
-
-            }
-            finally
-            {
-                //освобождаем память, занятую объектами
+                EX_WRITE.App.Quit();
 
                 Marshal.ReleaseComObject(EX_WRITE.Sht);
                 Marshal.ReleaseComObject(EX_WRITE.WB);
                 Marshal.ReleaseComObject(EX_WRITE.App);
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(EX_DATA.cell);
                 Marshal.ReleaseComObject(EX_DATA.Sht);
+                Marshal.ReleaseComObject(EX_DATA.Shts);
                 Marshal.ReleaseComObject(EX_DATA.WB);
+                Marshal.ReleaseComObject(EX_DATA.WBs);
                 Marshal.ReleaseComObject(EX_DATA.App);
+                //освобождаем память, занятую объектами
+                Marshal.ReleaseComObject(EX_WRITE.Sht);
+                Marshal.ReleaseComObject(EX_WRITE.WB);
+                Marshal.ReleaseComObject(EX_WRITE.App);
+
+
 
             }
         }
@@ -110,9 +161,11 @@ namespace _ExcelRebuildWF
         public struct EXL
         {
             public Excel.Application App;
+            public Excel.Workbooks WBs;
             public Excel.Workbook WB;
+            public Excel.Sheets Shts;
             public Excel.Worksheet Sht;
-            public Excel.Range RngAct;
+            public Excel.Range cell;
             public bool load;
         }
 
