@@ -133,10 +133,24 @@ namespace _ExcelRebuildWF
 
                     }
                 }*/
-                int excelIndex = 0;
+                
 
-                materials.RemoveAt(0);
-                materials.RemoveAt(0);
+                for (int i = 0; i < materials.Count; i++)
+                {
+                    if (materials[i].Contains("МАТЕРИАЛ"))
+                    {
+                        materials.RemoveAt(i);
+                    }
+                }
+                for (int i =0; i< materials.Count; i++)
+                {
+                    if (materials[i] == "")
+                    {
+                        materials.RemoveAt(i);
+                    }
+                }
+
+                int excelIndex = 0;
 
                 foreach (string material in materials)
                 {
