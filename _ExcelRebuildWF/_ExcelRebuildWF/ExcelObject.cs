@@ -12,11 +12,11 @@ namespace _ExcelRebuildWF
         public string Header { get; set; }
         public string Наименование { get; set; }
         public string Обозначение { get; set; }
-        public string Количество { get; set; }
+        public double Количество { get; set; }
         public string Материал { get; set; }
         public string Покупное_изделие { get; set; }
         public string Примечание { get; set; }
-        public string Размер { get; set; }
+        public double Размер { get; set; }
         public string Установка { get; set; }
         public string Моноблок { get; set; }
         public string Длина { get; set; }

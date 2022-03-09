@@ -61,19 +61,36 @@ namespace _ExcelRebuildWF
                     listObjects[i].Наименование = EX_DATA.cell[i + 1, "B"].Value;
                     listObjects[i].Обозначение = EX_DATA.cell[i + 1, "C"].Value;
                     if (EX_DATA.cell[i + 1, "D"].Value.ToString() != null)
-                        listObjects[i].Количество = EX_DATA.cell[i + 1, "D"].Value.ToString();
+                    {
+                        double number;
+                        bool isNumber = double.TryParse(EX_DATA.cell[i + 1, "D"].Value.ToString().Trim(), out number);
+                        if (isNumber)
+                        {
+                            EX_DATA.cell[i + 1, "D"].NumberFormat = "#,##0";
+                            EX_DATA.cell[i + 1, "D"].Value = number;
+                            listObjects[i].Количество = EX_DATA.cell[i + 1, "D"].Value;
+                        }
+                    }
                     listObjects[i].Материал = EX_DATA.cell[i + 1, "E"].Value;
                     if (listObjects[i].Материал != null && !materials.Contains(listObjects[i].Материал))
                     {
                         materials.Add(listObjects[i].Материал);
                     }
-                    listObjects[i].Размер = EX_DATA.cell[i + 1, "H"].Value;
                     if (EX_DATA.cell[i + 1, "K"].Value != null)
-                        listObjects[i].Длина = EX_DATA.cell[i + 1, "K"].Value.ToString();
-                    if (EX_DATA.cell[i + 1, "AA"].Value != null && i !=0)
                     {
-                        int number;
-                        bool isNumber = int.TryParse(EX_DATA.cell[i + 1, "AA"].Value.ToString().Trim(), out number);
+                        double number;
+                        bool isNumber = double.TryParse(EX_DATA.cell[i + 1, "K"].Value.ToString().Trim(), out number);
+                        if (isNumber)
+                        {
+                            EX_DATA.cell[i + 1, "K"].NumberFormat = "#,##0";
+                            EX_DATA.cell[i + 1, "K"].Value = number;
+                            listObjects[i].Размер = EX_DATA.cell[i + 1, "K"].Value;
+                        }
+                    }
+                    if (EX_DATA.cell[i + 1, "AA"].Value != null && i != 0)
+                    {
+                        double number;
+                        bool isNumber = double.TryParse(EX_DATA.cell[i + 1, "AA"].Value.ToString().Trim(), out number);
                         if (isNumber)
                         {
                             EX_DATA.cell[i + 1, "AA"].NumberFormat = "#,##0";
@@ -81,7 +98,11 @@ namespace _ExcelRebuildWF
                             listObjects[i].Вес = EX_DATA.cell[i + 1, "AA"].Value;
                         }
                     }
-                        
+                    if (listObjects[i].Header == "Стандартные изделия" || listObjects[i].Header == "Прочие изделия")
+                    {
+                        materials.Add(listObjects[i].Наименование);
+                    }
+
                 }
                 EX_DATA.App.Quit();
                 Marshal.ReleaseComObject(EX_DATA.cell);
@@ -113,19 +134,34 @@ namespace _ExcelRebuildWF
                     }
                 }*/
                 int excelIndex = 0;
+
+                materials.RemoveAt(0);
+                materials.RemoveAt(0);
+
                 foreach (string material in materials)
                 {
                     EX_WRITE.Sht.Range[$"{GetLetter(0)}{excelIndex + 1}"].Value = material;
                     double materialSumm = 0;
                     foreach (var listObject in listObjects)
                     {
-                        if (listObject.Материал == material)
+                        if (listObject.Материал == material && (listObject.Материал.Contains("Прокат") || listObject.Материал.Contains("Лист")))
                         {
                             materialSumm += listObject.Вес;
-
+                        }
+                        if (listObject.Материал == material && (listObject.Header == "Материалы" || listObject.Наименование.Contains("Шина")))
+                        {
+                            materialSumm += listObject.Количество;
+                        }
+                        if (listObject.Материал == material && (listObject.Наименование.Contains("Ригель") || listObject.Наименование.Contains("Стойка")))
+                        {
+                            materialSumm += listObject.Размер / 1000;
+                        }
+                        if (listObject.Наименование == material && !listObject.Наименование.Contains("Уплотнитель") && !listObject.Наименование.Contains("Провод"))
+                        {
+                            materialSumm += listObject.Количество;
                         }
                     }
-                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].NumberFormat = "#,##0";
+                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].NumberFormat = "0.0#";
                     EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value = materialSumm;
                     excelIndex++;
                 }
