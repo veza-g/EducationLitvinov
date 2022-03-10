@@ -34,32 +34,41 @@
             // 
             // buttonOK
             // 
-            this.buttonOK.Location = new System.Drawing.Point(12, 176);
+            this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.buttonOK.Location = new System.Drawing.Point(12, 174);
             this.buttonOK.Name = "buttonOK";
-            this.buttonOK.Size = new System.Drawing.Size(75, 23);
+            this.buttonOK.Size = new System.Drawing.Size(100, 25);
             this.buttonOK.TabIndex = 0;
-            this.buttonOK.Text = "ОК";
+            this.buttonOK.Text = "Выбрать файл";
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
             // buttonCancel
             // 
-            this.buttonCancel.Location = new System.Drawing.Point(297, 176);
+            this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.buttonCancel.Location = new System.Drawing.Point(353, 174);
             this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
+            this.buttonCancel.Size = new System.Drawing.Size(100, 25);
             this.buttonCancel.TabIndex = 1;
-            this.buttonCancel.Text = "Отмена";
+            this.buttonCancel.Text = "Выход";
             this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 211);
+            this.BackgroundImage = global::_ExcelRebuildWF.Properties.Resources.new_ЛОГОВЕЗА;
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.ClientSize = new System.Drawing.Size(465, 211);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOK);
+            this.DoubleBuffered = true;
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "ВЕЗА КТО. Пересчёт Excel";
             this.ResumeLayout(false);
 
         }

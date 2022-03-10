@@ -20,6 +20,13 @@ namespace _ExcelRebuildWF
         private void buttonOK_Click(object sender, EventArgs e)
         {
             ExcelActions.ReadExcel();
+            this.Close();
         }
+
+        private void buttonCancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
     }
 }

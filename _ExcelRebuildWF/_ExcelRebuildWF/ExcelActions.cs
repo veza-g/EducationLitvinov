@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace _ExcelRebuildWF
 {
@@ -31,6 +32,10 @@ namespace _ExcelRebuildWF
 
                 if (inputFile.ShowDialog() != DialogResult.OK)
                     return;
+
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+
                 string xlFileName = inputFile.FileName;
 
                 Excel.Range Rng;
@@ -76,17 +81,23 @@ namespace _ExcelRebuildWF
 
                     listObjects[i].Материал = EX_DATA.cell[i + 1, "E"].Value;
 
+                    if (listObjects[i].Header == "Сборочные единицы")
+                        if (!materials.Contains($"{listObjects[i].Наименование} {listObjects[i].Обозначение}"))
+                        {
+                            materials.Add($"{listObjects[i].Наименование} {listObjects[i].Обозначение}");
+                        }
+
                     if (listObjects[i].Header == "Детали")
                     {
                         if (listObjects[i].Материал != null)
                         {
-                            if (listObjects[i].Материал.Contains("Полиамид") && !materials.Contains(listObjects[i].Наименование))
+                            if (listObjects[i].Материал.Contains("Полиамид") && !materials.Contains($"{listObjects[i].Наименование} {listObjects[i].Обозначение}"))
                             {
-                                materials.Add(listObjects[i].Наименование);
+                                materials.Add($"{listObjects[i].Наименование} {listObjects[i].Обозначение}");
                             }
-                            if ((listObjects[i].Материал == "" || listObjects[i].Материал == null) && !materials.Contains(listObjects[i].Наименование))
+                            if ((listObjects[i].Материал == "" || listObjects[i].Материал == null) && !materials.Contains($"{listObjects[i].Наименование} {listObjects[i].Обозначение}"))
                             {
-                                materials.Add(listObjects[i].Наименование);
+                                materials.Add($"{listObjects[i].Наименование} {listObjects[i].Обозначение}");
                             }
                             if (!listObjects[i].Материал.Contains("Полиамид") && !listObjects[i].Материал.Contains("Белый пластик")
                                 && !materials.Contains(listObjects[i].Материал))
@@ -95,9 +106,9 @@ namespace _ExcelRebuildWF
                             }
                         }
                         else if (listObjects[i].Материал == null && listObjects[i].Наименование != null &&
-                            !materials.Contains(listObjects[i].Наименование))
+                            !materials.Contains($"{listObjects[i].Наименование} {listObjects[i].Обозначение}"))
                         {
-                            materials.Add(listObjects[i].Наименование);
+                            materials.Add($"{listObjects[i].Наименование} {listObjects[i].Обозначение}");
                         }
                     }
 
@@ -113,8 +124,7 @@ namespace _ExcelRebuildWF
                         }
                     }
 
-                    if (listObjects[i].Header == "Сборочные единицы" || listObjects[i].Header == "Стандартные изделия" || 
-                        listObjects[i].Header == "Прочие изделия")
+                    if (listObjects[i].Header == "Стандартные изделия" || listObjects[i].Header == "Прочие изделия")
                         if (!materials.Contains(listObjects[i].Наименование))
                         {
                             materials.Add(listObjects[i].Наименование);
@@ -202,12 +212,25 @@ namespace _ExcelRebuildWF
 
                 foreach (string material in materials)
                 {
-                    
+
                     double materialSumm = 0;
-                                        //int count = 0;
+                    //int count = 0;
                     foreach (var listObject in listObjects)
                     {
                         string materialHeader = listObject.Header;
+                        string nameComparer = $"{listObject.Наименование} {listObject.Обозначение}";
+
+                        if (listObject.Header == "Сборочные единицы")
+                        {
+                            if (nameComparer == material)
+                            {
+                                materialSumm += listObject.Количество;
+                                /*EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Interior.Color =
+                                    System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Violet);
+                                count++;
+                                EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Value = count;*/
+                            }
+                        }
 
                         if (listObject.Header == "Детали")
                         {
@@ -229,7 +252,7 @@ namespace _ExcelRebuildWF
                                 count++;
                                 EX_WRITE.Sht.Range[$"{GetLetter(3)}{excelIndex + 1}"].Value = count;*/
                             }
-                            if (listObject.Наименование == material && (listObject.Материал == null ||listObject.Материал.Contains("Полиамид") || 
+                            if (nameComparer == material && (listObject.Материал == null || listObject.Материал.Contains("Полиамид") ||
                                 listObject.Материал == ""))
                             {
                                 materialSumm += listObject.Количество;
@@ -276,7 +299,7 @@ namespace _ExcelRebuildWF
                             }
                         }
 
-                        else if (listObject.Header == "Сборочные единицы" || listObject.Header == "Стандартные изделия" || listObject.Header == "Прочие изделия")
+                        else if (listObject.Header == "Стандартные изделия" || listObject.Header == "Прочие изделия")
                         {
                             if (listObject.Наименование == material)
                             {
@@ -304,6 +327,17 @@ namespace _ExcelRebuildWF
                 Marshal.ReleaseComObject(EX_WRITE.Sht);
                 Marshal.ReleaseComObject(EX_WRITE.WB);
                 Marshal.ReleaseComObject(EX_WRITE.App);
+
+                stopWatch.Stop();
+                // Get the elapsed time as a TimeSpan value.
+                TimeSpan ts = stopWatch.Elapsed;
+
+                // Format and display the TimeSpan value.
+                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                    ts.Hours, ts.Minutes, ts.Seconds,
+                    ts.Milliseconds / 10);
+
+                MessageBox.Show("Выполнение программы завершено\nRunTime: " + elapsedTime, "Разбор по фрагментам(сборка)");
             }
             finally
             {
