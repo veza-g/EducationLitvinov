@@ -50,6 +50,18 @@ namespace FRAGMENTSTREE_PLG
             return null;
         }
 
+        private Layer GetLayer(Document doc, string layerName)
+        {
+            foreach (Layer layer in doc.GetLayers())
+            {
+                if (layer.Name == layerName)
+                {
+                    return layer;
+                }
+            }
+            return null;
+        }
+
         private List<Page> GetPagesPDF(Document doc, PageType pageType)
         {
             List<Page> pagesList = new List<Page>();
@@ -119,43 +131,43 @@ namespace FRAGMENTSTREE_PLG
                         }
                         else naim = "";
 
-                        
 
-                            FileInfo parFile = new FileInfo(doc.FileName);
-                            DirectoryInfo parDir = new DirectoryInfo(parFile.DirectoryName);
-                            BasePath = parDir.FullName;
-                            string subpathSTPRU = @"STP";
-                            string subpathDXFRU = @"DXF";
-                            string subpathPDFRU = @"PDF";
-                            pathSTPRU = pathDXFRU = pathPDFRU = parFile.DirectoryName;
-                            DirectoryInfo dirInfo = new DirectoryInfo(pathSTPRU);
-                            if (!dirInfo.Exists)
-                            {
-                                dirInfo.Create();
-                            }
-                            if (exportSTEP)
-                                dirInfo.CreateSubdirectory(subpathSTPRU);
-                            pathSTPRU = $"{pathSTPRU}\\{subpathSTPRU}";
-                            if (exportDXF)
-                                dirInfo.CreateSubdirectory(subpathDXFRU);
-                            pathDXFRU = $"{pathDXFRU}\\{subpathDXFRU}";
-                            if (exportPDF)
-                                dirInfo.CreateSubdirectory(subpathPDFRU);
-                            pathPDFRU = $"{pathPDFRU}\\{subpathPDFRU}";
-                            string file_name = doc.FileName;
-                            Level = 0;
-                            TFlex.Application.FileLinksAutoRefresh = TFlex.Application.FileLinksRefreshMode.AutoRefresh;
-                            Profile = new List<string>();
-                            RegenerateOptions rg = new RegenerateOptions();
-                            rg.Full = true;
-                            rg.UpdateAllLinks = true;
-                            rg.UpdateProductStructures = true;
-                            rg.UpdateBillOfMaterials = true;
-                            //rg.UpdateBillOfMaterials = true;
-                            rg.Projections = true;
 
-                            doc.Regenerate(rg);
-                            GetFragmentData(doc, sw, file_name, doc.FilePath, oboz, naim, Level);
+                        FileInfo parFile = new FileInfo(doc.FileName);
+                        DirectoryInfo parDir = new DirectoryInfo(parFile.DirectoryName);
+                        BasePath = parDir.FullName;
+                        string subpathSTPRU = @"STP";
+                        string subpathDXFRU = @"DXF";
+                        string subpathPDFRU = @"PDF";
+                        pathSTPRU = pathDXFRU = pathPDFRU = parFile.DirectoryName;
+                        DirectoryInfo dirInfo = new DirectoryInfo(pathSTPRU);
+                        if (!dirInfo.Exists)
+                        {
+                            dirInfo.Create();
+                        }
+                        if (exportSTEP)
+                            dirInfo.CreateSubdirectory(subpathSTPRU);
+                        pathSTPRU = $"{pathSTPRU}\\{subpathSTPRU}";
+                        if (exportDXF)
+                            dirInfo.CreateSubdirectory(subpathDXFRU);
+                        pathDXFRU = $"{pathDXFRU}\\{subpathDXFRU}";
+                        if (exportPDF)
+                            dirInfo.CreateSubdirectory(subpathPDFRU);
+                        pathPDFRU = $"{pathPDFRU}\\{subpathPDFRU}";
+                        string file_name = doc.FileName;
+                        Level = 0;
+                        TFlex.Application.FileLinksAutoRefresh = TFlex.Application.FileLinksRefreshMode.AutoRefresh;
+                        Profile = new List<string>();
+                        RegenerateOptions rg = new RegenerateOptions();
+                        rg.Full = true;
+                        rg.UpdateAllLinks = true;
+                        rg.UpdateProductStructures = true;
+                        rg.UpdateBillOfMaterials = true;
+                        //rg.UpdateBillOfMaterials = true;
+                        rg.Projections = true;
+
+                        //doc.Regenerate(rg);
+                        GetFragmentData(doc, sw, file_name, doc.FilePath, oboz, naim, Level);
                     }
                     catch (Exception e)
                     {
@@ -168,7 +180,7 @@ namespace FRAGMENTSTREE_PLG
             TFlex.Application.ActiveMainWindow.StatusBar.Prompt = "";
 
             doc.Selection.DeselectAll();
-            
+
             stopWatch.Stop();
             // Get the elapsed time as a TimeSpan value.
             TimeSpan ts = stopWatch.Elapsed;
@@ -189,7 +201,7 @@ namespace FRAGMENTSTREE_PLG
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            
+
 
 
             stopWatch.Stop();
@@ -232,7 +244,7 @@ namespace FRAGMENTSTREE_PLG
                 {
                     if (exportSTEP)
                     {
-                        doc.Regenerate(rg);
+                        //doc.Regenerate(rg);
                         reg = true;
                         ExportToStep exportSTPRU = new ExportToStep(doc);
                         string fileNameSTPRU = ($"{pathSTPRU}\\{confName}_{doc.FindVariable("$Наименование").TextValue}.stp");
@@ -248,20 +260,32 @@ namespace FRAGMENTSTREE_PLG
                     }
                     if (exportDXF)
                     {
-                        if (!reg) doc.Regenerate(rg);
+                        //if (!reg) doc.Regenerate(rg);
                         ExportToDXF exportDXFRU = new ExportToDXF(doc);
 
                         Page pgRU = GetPageDXF(doc, "Развертка");
-                        Page pgRU2 = GetPageDXF(doc, "Развертка1");
+                        Page pgRU2 = GetPageDXF(doc, "Развертка_1");
                         //Page pgRU = GetPageDXF2(doc, PageType.Auxiliary);
-                        if (pgRU != null || pgRU2 != null)
+                        if (pgRU != null)
                         {
                             List<Page> pgDXFRU = new List<Page>();
                             pgDXFRU.Add(pgRU);
+                            exportDXFRU.ExportPages = pgDXFRU;
+                            exportDXFRU.BiarcInterpolationForSplines = true;
+                            string fileNameDXFRU = ($"{pathDXFRU}\\{confName}_{doc.FindVariable("$Наименование_1").TextValue}.dxf");
+                            if (!File.Exists(fileNameDXFRU))
+                            {
+                                sw.WriteLine(offset + "DXF Export: OK");
+                                exportDXFRU.Export(fileNameDXFRU);
+                            }
+                        }
+                        if (pgRU2 != null)
+                        {
+                            List<Page> pgDXFRU = new List<Page>();
                             pgDXFRU.Add(pgRU2);
                             exportDXFRU.ExportPages = pgDXFRU;
                             exportDXFRU.BiarcInterpolationForSplines = true;
-                            string fileNameDXFRU = ($"{pathDXFRU}\\{confName}_{doc.FindVariable("$Наименование").TextValue}.dxf");
+                            string fileNameDXFRU = ($"{pathDXFRU}\\{confName}_{doc.FindVariable("$Наименование_2").TextValue}.dxf");
                             if (!File.Exists(fileNameDXFRU))
                             {
                                 sw.WriteLine(offset + "DXF Export: OK");
@@ -271,7 +295,7 @@ namespace FRAGMENTSTREE_PLG
                     }
                     if (exportPDF)
                     {
-                        if (!reg) doc.Regenerate(rg);
+                        //if (!reg) doc.Regenerate(rg);
                         foreach (ProductStructure product in doc.GetProductStructures())
                         {
 
@@ -312,95 +336,56 @@ namespace FRAGMENTSTREE_PLG
                             }
                         }
                         reg = false;
-                        /*foreach (Fragment3D frag in doc.GetFragments3D())
-                        {
-                            if (frag.Suppression.Suppress) continue;
-                            else
-                            {
-                                Document docFR = null;
-                                string obozF = "-";
-                                string naimF = "-";
-                                bool err = false;
-                                string str_err = "";
-                                string FRname = frag.FullFilePath;
-                                if (lev > 0)
-                                {
-                                    FRname = frag.FilePath;
-                                    FRname = TFlex.Application.FindPathName(FRname);
-                                }
-
-                                if (File.Exists(FRname))
-                                {
-                                    Fragment.OpenPartOptions options = new Fragment.OpenPartOptions();
-                                    options.DontShowDocument = true;
-                                    options.QuietMode = true;
-                                    options.SaveDocument = true;
-                                    options.SubstituteGeometry = true;
-                                    options.SubstituteVariables = true;
-                                    options.SubstituteStatus = true;
-                                    //docFR = frag.OpenPart(options);
-                                    //bool exist = false;
-                                    //foreach (string nameP in Profile)
-                                    //{
-                                    //    if (nameP == FRname)
-                                    //    {
-                                    //        exist = true;
-                                    //        break;
-                                    //    }
-                                    //}
-                                    if (exist) continue;
-                                    docFR = TFlex.Application.OpenDocument(FRname, false, false);
-                                    if (docFR != null)
-                                    {
-                                        Variable voboz = docFR.FindVariable("$Обозначение");
-                                        Variable vnaim = docFR.FindVariable("$Наименование");
-                                        if (vnaim != null)
-                                        {
-                                            naimF = vnaim.TextValue;
-                                        }
-                                        else
-                                        {
-                                            naimF = "Переменная $Наименование не найдена";
-                                        };
-                                        if (voboz != null)
-                                        {
-                                            obozF = voboz.TextValue;
-                                        }
-                                        else
-                                        {
-                                            obozF = "Переменная $Обозначение не найдена";
-                                        };
-                                    }
-                                    else
-                                    {
-                                        err = true;
-                                        str_err = "Ошибка открытия";
-                                    }
-                                }
-                                else
-                                {
-                                    err = true;
-                                    str_err = "Файл не найден";
-                                }
-
-                                if (err == false)
-                                {
-                                    docFR.Regenerate(rg);
-                                    GetFragmentData(docFR, sw, FRname, frag.FullFilePath, obozF, naimF, lev + 1);
-                                    docFR.Save();
-                                    //Profile.Add(FRname);
-                                    docFR.Close();
-                                }
-                            }
-                        }*/
-                        //return;
                     }
                 }
                 else if ((doc.FindVariable("$Наименование").TextValue != "") || (doc.FindVariable("$Обозначение").TextValue != ""))
                 {
                     if (exportSTEP)
                     {
+                        doc.BeginChanges("11");
+                        foreach (Layer layer in doc.GetLayers())
+                        {
+                            if (layer.Name != "Наружная обшивка 3D")
+                            {
+                                layer.Hidden = true;
+                            }
+                        }
+                        doc.ApplyChanges();
+                        ExportToStep exportOuter = new ExportToStep(doc);
+                        exportOuter.ExportSheetBodies = true;
+                        exportOuter.ExportWireBodies = true;
+                        exportOuter.ExportSolidBodies = true;
+                        string fileNameOuter = ($"{pathSTPRU}\\{doc.FindVariable("$Обозначение_1").TextValue}_{doc.FindVariable("$Наименование_1").TextValue}.stp");
+                        if (!File.Exists(fileNameOuter))
+                        {
+                            exportOuter.Export(fileNameOuter);
+                        }
+                        doc.CancelChanges();
+
+                        doc.BeginChanges("12");
+                        foreach (Layer layer in doc.GetLayers())
+                        {
+                            if (layer.Name != "Внутренняя обшивка 3D")
+                            {
+                                layer.Hidden = true;
+                            }
+                        }
+                        doc.ApplyChanges();
+
+                        ExportToStep exportInner = new ExportToStep(doc);
+                        exportInner.ExportSheetBodies = true;
+                        exportInner.ExportWireBodies = true;
+                        exportInner.ExportSolidBodies = true;
+                        string fileNameInner = ($"{pathSTPRU}\\{doc.FindVariable("$Обозначение_2").TextValue}_{doc.FindVariable("$Наименование_2").TextValue}.stp");
+                        if (!File.Exists(fileNameInner))
+                        {
+                            exportInner.Export(fileNameInner);
+                        }
+                        doc.CancelChanges();
+
+
                         doc.Regenerate(rg);
+
                         reg = true;
                         ExportToStep exportSTPRU = new ExportToStep(doc);
                         string fileNameSTPRU = ($"{pathSTPRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}.stp");
@@ -416,20 +401,33 @@ namespace FRAGMENTSTREE_PLG
                     }
                     if (exportDXF)
                     {
-                        if (!reg) doc.Regenerate(rg);
+                        //if (!reg) doc.Regenerate(rg);
                         ExportToDXF exportDXFRU = new ExportToDXF(doc);
                         Page pgRUDXF = GetPageDXF(doc, "Развертка");
-                        Page pgRUDXF2 = GetPageDXF(doc, "Развертка1");
+                        Page pgRUDXF2 = GetPageDXF(doc, "Развертка_1");
                         //Page pgRUDXF = GetPageDXF2(doc, PageType.Auxiliary);
-                        if (pgRUDXF != null || pgRUDXF2 != null)
+                        if (pgRUDXF != null)
                         {
                             List<Page> pgDXFRU = new List<Page>();
                             pgDXFRU.Add(pgRUDXF);
-                            pgDXFRU.Add(pgRUDXF2);
                             exportDXFRU.ExportPages = pgDXFRU;
-                            string fileNameDXFRU = ($"{pathDXFRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}.dxf");
+                            string fileNameDXFRU = ($"{pathDXFRU}\\{doc.FindVariable("$Обозначение_1").TextValue}_{doc.FindVariable("$Наименование_1").TextValue}.dxf");
                             if (!File.Exists(fileNameDXFRU))
                             {
+                                sw.WriteLine($"{pathDXFRU}\\{doc.FindVariable("$Обозначение_1").TextValue}_{doc.FindVariable("$Наименование_1").TextValue}");
+                                sw.WriteLine(offset + "DXF Export: OK");
+                                exportDXFRU.Export(fileNameDXFRU);
+                            }
+                        }
+                        if (pgRUDXF2 != null)
+                        {
+                            List<Page> pgDXFRU = new List<Page>();
+                            pgDXFRU.Add(pgRUDXF2);
+                            exportDXFRU.ExportPages = pgDXFRU;
+                            string fileNameDXFRU = ($"{pathDXFRU}\\{doc.FindVariable("$Обозначение_2").TextValue}_{doc.FindVariable("$Наименование_2").TextValue}.dxf");
+                            if (!File.Exists(fileNameDXFRU))
+                            {
+                                sw.WriteLine($"{pathDXFRU}\\{doc.FindVariable("$Обозначение_2").TextValue}_{doc.FindVariable("$Наименование_2").TextValue}");
                                 sw.WriteLine(offset + "DXF Export: OK");
                                 exportDXFRU.Export(fileNameDXFRU);
                             }
@@ -437,24 +435,24 @@ namespace FRAGMENTSTREE_PLG
                     }
                     if (exportPDF)
                     {
-                        doc.BeginChanges("1");
+                        /*doc.BeginChanges("1");
                         if (!reg) doc.Regenerate(rg);
                         foreach (ProductStructure product in doc.GetProductStructures())
                         {
                             product.Regenerate(true);
                             product.UpdateStructure();
                             product.UpdateReports();
-                            /*ProductStructureExcelExportOptions options = new ProductStructureExcelExportOptions();
+                            ProductStructureExcelExportOptions options = new ProductStructureExcelExportOptions();
                             options.FilePath = ($"{pathPDFRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}_{product.Name}.xlsx");
                             options.Silent = true;
                             TFlex.Model.Data.ProductStructure.GroupingRules item = new TFlex.Model.Data.ProductStructure.GroupingRules();
                             item.Name = "Спецификация";
                             options.GroupingUID = item.ID;
-                            product.ExportToExcel(options);*/
+                            product.ExportToExcel(options);
                         }
-                        doc.EndChanges();
+                        doc.EndChanges();*/
 
-                        /*ExportToPDF exportPDFnormalRU = new ExportToPDF(doc);
+                        ExportToPDF exportPDFnormalRU = new ExportToPDF(doc);
                         List<Page> pgPDFnormalRU = GetPagesPDF(doc, PageType.Normal);
                         if (pgPDFnormalRU != null)
                         {
@@ -480,91 +478,8 @@ namespace FRAGMENTSTREE_PLG
                                 sw.WriteLine(offset + "PDFBOM Export: OK");
                                 exportPDFBOMRU.Export(fileNamePDFRU);
                             }
-                        }*/
+                        }
                         reg = false;
-                        #region
-                        /*foreach (Fragment3D frag in doc.GetFragments3D())
-                        {
-                            if (frag.Suppression.Suppress) continue;
-                            else
-                            {
-                                Document docFR = null;
-                                string obozF = "-";
-                                string naimF = "-";
-                                bool err = false;
-                                string str_err = "";
-                                string FRname = frag.FullFilePath;
-                                if (lev > 0)
-                                {
-                                    FRname = frag.FilePath;
-                                    FRname = TFlex.Application.FindPathName(FRname);
-                                }
-
-                                if (File.Exists(FRname))
-                                {
-                                    Fragment.OpenPartOptions options = new Fragment.OpenPartOptions();
-                                    options.DontShowDocument = true;
-                                    options.QuietMode = true;
-                                    options.SubstituteGeometry = true;
-                                    options.SubstituteVariables = true;
-                                    options.SubstituteStatus = true;
-                                    //bool exist = false;
-                                    //foreach (string nameP in Profile)
-                                    //{
-                                    //    if (nameP == FRname)
-                                    //    {
-                                    //        exist = true;
-                                    //        break;
-                                    //    }
-                                    //}
-                                    //if (exist) continue;
-                                    docFR = TFlex.Application.OpenDocument(FRname, false, true);
-
-                                    if (docFR != null)
-                                    {
-                                        Variable voboz = docFR.FindVariable("$Обозначение");
-                                        Variable vnaim = docFR.FindVariable("$Наименование");
-                                        if (vnaim != null)
-                                        {
-                                            naimF = vnaim.TextValue;
-                                        }
-                                        else
-                                        {
-                                            naimF = "Переменная $Наименование не найдена";
-                                        };
-                                        if (voboz != null)
-                                        {
-                                            obozF = voboz.TextValue;
-                                        }
-                                        else
-                                        {
-                                            obozF = "Переменная $Обозначение не найдена";
-                                        };
-                                    }
-                                    else
-                                    {
-                                        err = true;
-                                        str_err = "Ошибка открытия";
-                                    }
-                                }
-                                else
-                                {
-                                    err = true;
-                                    str_err = "Файл не найден";
-                                }
-
-                                if (err == false)
-                                {
-                                    docFR.Regenerate(rg);
-                                    GetFragmentData(docFR, sw, FRname, frag.FullFilePath, obozF, naimF, lev + 1);
-                                    docFR.Save();
-                                    //Profile.Add(FRname);
-                                    docFR.Close();
-                                }
-                            }
-                        }*/
-                        #endregion
-                        //return;
                     }
                 }
             }
@@ -652,7 +567,7 @@ namespace FRAGMENTSTREE_PLG
             }
             return;
         }
-
+        #region Set
         private void Set(Document doc, StreamWriter sw, string name, string path, string oboz, string naim, int lev)
         {
             string offset = "";
@@ -676,7 +591,7 @@ namespace FRAGMENTSTREE_PLG
                 string confName = doc.ModelConfigurations.GetConfigurationName(i);
                 doc.ModelConfigurations.LoadConfigurationVariables(confName);
                 doc.Regenerate(rg);
-                
+
                 /*if (exportSTEP)
                 {
                     ExportToStep exportSTPconf = new ExportToStep(doc);
@@ -816,7 +731,7 @@ namespace FRAGMENTSTREE_PLG
             return;
         }
     }
-
+    #endregion
     public class ATTR_COM
     {
         public Int16 attr;
