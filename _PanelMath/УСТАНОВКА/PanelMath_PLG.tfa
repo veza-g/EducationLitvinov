@@ -1,0 +1,5 @@
+[0B8D6991-CE94-436C-BC7F-4B70586A5C32]
+dll=PanelMath_PLG.dll
+Managed=1
+name=Расчёт панелей
+autostart=1

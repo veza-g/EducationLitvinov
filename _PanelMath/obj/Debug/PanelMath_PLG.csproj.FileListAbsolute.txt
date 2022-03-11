@@ -1,0 +1,10 @@
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.csproj.AssemblyReference.cache
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\FRAGMENTSTREE_PLG.ComParams.resources
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.csproj.GenerateResource.cache
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.csproj.CoreCompileInputs.cache
+C:\Program Files\T-FLEX CAD 17\Program\PanelMath_PLG.dll
+C:\Program Files\T-FLEX CAD 17\Program\PanelMath_PLG.pdb
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.Properties.Resources.resources
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.csproj.CopyComplete
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.dll
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.pdb
