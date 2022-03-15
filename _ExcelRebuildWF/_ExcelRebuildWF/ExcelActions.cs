@@ -214,7 +214,7 @@ namespace _ExcelRebuildWF
                 {
 
                     double materialSumm = 0;
-                    //int count = 0;
+                    int count = 0;
                     foreach (var listObject in listObjects)
                     {
                         string materialHeader = listObject.Header;
@@ -225,10 +225,10 @@ namespace _ExcelRebuildWF
                             if (nameComparer == material)
                             {
                                 materialSumm += listObject.Количество;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Violet);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Value = count;
                             }
                         }
 
@@ -238,44 +238,44 @@ namespace _ExcelRebuildWF
                                 listObject.Материал.Contains("Лист") || listObject.Материал.Contains("Рулон")))
                             {
                                 materialSumm += listObject.Вес;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(2)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(2)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(2)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(2)}{excelIndex + 1}"].Value = count;
                             }
                             if (listObject.Материал == material && (listObject.Материал.Contains("Ригель") ||
                                 listObject.Материал.Contains("Стойка")))
                             {
                                 materialSumm += listObject.Размер / 1000;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(3)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(3)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(3)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(3)}{excelIndex + 1}"].Value = count;
                             }
                             if (nameComparer == material && (listObject.Материал == null || listObject.Материал.Contains("Полиамид") ||
                                 listObject.Материал == ""))
                             {
                                 materialSumm += listObject.Количество;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(4)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(4)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(4)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(4)}{excelIndex + 1}"].Value = count;
                             }
                             if (listObject.Материал == material && (listObject.Материал == "" || listObject.Материал == null))
                             {
                                 materialSumm += listObject.Количество;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(5)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(5)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Blue);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(5)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(5)}{excelIndex + 1}"].Value = count;
                             }
                             if (listObject.Материал == material && listObject.Наименование.Contains("Шина"))
                             {
                                 materialSumm += listObject.Количество;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(6)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(6)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Black);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(6)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(6)}{excelIndex + 1}"].Value = count;
                             }
                         }
 
@@ -284,18 +284,18 @@ namespace _ExcelRebuildWF
                             if (listObject.Наименование == material)
                             {
                                 materialSumm += listObject.Количество;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(7)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(7)}{excelIndex + 1}"].Interior.Color =
                                         System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Orange);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(7)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(7)}{excelIndex + 1}"].Value = count;
                             }
                             else if (listObject.Материал == material)
                             {
                                 materialSumm += listObject.Количество;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(8)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(8)}{excelIndex + 1}"].Interior.Color =
                                         System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Pink);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(8)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(8)}{excelIndex + 1}"].Value = count;
                             }
                         }
 
@@ -304,16 +304,16 @@ namespace _ExcelRebuildWF
                             if (listObject.Наименование == material)
                             {
                                 materialSumm += listObject.Количество;
-                                /*EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Interior.Color =
+                                EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Violet);
                                 count++;
-                                EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Value = count;*/
+                                EX_WRITE.Sht.Range[$"{GetLetter(9)}{excelIndex + 1}"].Value = count;
                             }
                         }
                     }
                     EX_WRITE.Sht.Range[$"{GetLetter(0)}{excelIndex + 1}"].Value = material;
-                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].NumberFormat = "0.00";
-                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value = materialSumm;
+                    //EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].NumberFormat = "0.00";
+                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value = materialSumm.ToString();
                     excelIndex++;
                 }
 
