@@ -8,3 +8,4 @@ C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\Pa
 C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.csproj.CopyComplete
 C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.dll
 C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.pdb
+C:\Users\litvinov.ls\Documents\_GitHub\EducationLitvinov\_PanelMath\obj\Debug\PanelMath_PLG.csproj.ResolveComReference.cache

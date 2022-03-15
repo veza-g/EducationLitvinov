@@ -8,6 +8,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using System.Linq;
+using Excel = Microsoft.Office.Interop.Excel;
 using TFlex;
 using TFlex.Model;
 using TFlex.Model.Model2D;
@@ -91,12 +92,12 @@ namespace FRAGMENTSTREE_PLG
         }
 
         public List<string> Profile;
+        public List<ExcelObject> listObjects = new List<ExcelObject>();
 
         public void OK(Document doc, ATTR_COM par)
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            //System.Threading.Thread.Sleep(10000);
 
             if (par.pDXF == 1) exportDXF = true;
             if (par.pSTEP == 1) exportSTEP = true;
@@ -177,6 +178,7 @@ namespace FRAGMENTSTREE_PLG
                 }
             }
 
+
             TFlex.Application.ActiveMainWindow.StatusBar.Prompt = "";
 
             doc.Selection.DeselectAll();
@@ -239,6 +241,7 @@ namespace FRAGMENTSTREE_PLG
 
                 confName = oboz;
 
+                #region Conf
                 if (((doc.FindVariable("$Наименование").TextValue != "") || (doc.FindVariable("$Обозначение").TextValue != ""))
                     && (doc.ModelConfigurations.ConfigurationCount != 0))
                 {
@@ -296,7 +299,7 @@ namespace FRAGMENTSTREE_PLG
                     if (exportPDF)
                     {
                         //if (!reg) doc.Regenerate(rg);
-                        foreach (ProductStructure product in doc.GetProductStructures())
+                        /*foreach (ProductStructure product in doc.GetProductStructures())
                         {
 
                             product.Regenerate(true);
@@ -308,7 +311,7 @@ namespace FRAGMENTSTREE_PLG
                             item.Name = "Спецификация";
                             options.GroupingUID = item.ID;
                             product.ExportToExcel(options);*/
-                        }
+                        //}
                         ExportToPDF exportPDFnormalconf = new ExportToPDF(doc);
                         List<Page> pgnormalconf = GetPagesPDF(doc, PageType.Normal);
                         if (pgnormalconf != null)
@@ -338,10 +341,54 @@ namespace FRAGMENTSTREE_PLG
                         reg = false;
                     }
                 }
+                #endregion
+
                 else if ((doc.FindVariable("$Наименование").TextValue != "") || (doc.FindVariable("$Обозначение").TextValue != ""))
                 {
+                    EXL EX_WRITE = new EXL();
+
+                    string xlFileName = BasePath;
+
+                    EX_WRITE.App = new Excel.Application();
+                    EX_WRITE.App.SheetsInNewWorkbook = 1;
+                    EX_WRITE.WB = EX_WRITE.App.Workbooks.Add();
+                    EX_WRITE.Shts = EX_WRITE.WB.Worksheets;
+                    EX_WRITE.Sht = EX_WRITE.Shts.Item[1];
+
                     if (exportSTEP)
                     {
+                        //doc.Regenerate(rg);
+
+                        reg = true;
+                        ExportToStep exportSTPRU = new ExportToStep(doc);
+                        string fileNameSTPRU = ($"{pathSTPRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}.stp");
+                        if (!File.Exists(fileNameSTPRU))
+                        {
+                            sw.WriteLine(offset + "Имя: " + name);
+                            sw.WriteLine(offset + "Путь: " + path);
+                            sw.WriteLine(offset + "Наименование: " + naim);
+                            sw.WriteLine(offset + "Обозначение: " + oboz);
+                            sw.WriteLine(offset + "STEP Export: OK");
+                            exportSTPRU.Export(fileNameSTPRU);
+                            string flagStandart = "";
+                            if (doc.FindVariable("Нестандартная_панель") != null)
+                            {
+                                var flagStandVariable = doc.FindVariable("Нестандартная_панель");
+                                if (doc.FindVariable("Нестандартная_панель").RealValue == 1)
+                                    flagStandart = "true";
+                                else if (doc.FindVariable("Нестандартная_панель").RealValue == 0)
+                                    flagStandart = "false";
+                            }
+
+                            listObjects.Add(new ExcelObject()
+                            {
+                                Наименование = doc.FindVariable("$Наименование").TextValue,
+                                Обозначение = doc.FindVariable("$Обозначение").TextValue,
+                                Нестандартные = flagStandart,
+                                Размер = doc.FindVariable("$Размер").TextValue,
+                            });
+                        }
+
                         doc.BeginChanges("11");
                         foreach (Layer layer in doc.GetLayers())
                         {
@@ -359,6 +406,23 @@ namespace FRAGMENTSTREE_PLG
                         if (!File.Exists(fileNameOuter))
                         {
                             exportOuter.Export(fileNameOuter);
+                            string flagStandart = "";
+                            if (doc.FindVariable("Нестандартная_панель") != null)
+                            {
+                                var flagStandVariable = doc.FindVariable("Нестандартная_панель");
+                                if (doc.FindVariable("Нестандартная_панель").RealValue == 1)
+                                    flagStandart = "true";
+                                else if (doc.FindVariable("Нестандартная_панель").RealValue == 0)
+                                    flagStandart = "false";
+                            }
+
+                            listObjects.Add(new ExcelObject()
+                            {
+                                Наименование = doc.FindVariable("$Наименование_1").TextValue,
+                                Обозначение = doc.FindVariable("$Обозначение_1").TextValue,
+                                Нестандартные = flagStandart,
+                                Размер = doc.FindVariable("$Размер").TextValue,
+                            });
                         }
                         doc.CancelChanges();
 
@@ -380,24 +444,28 @@ namespace FRAGMENTSTREE_PLG
                         if (!File.Exists(fileNameInner))
                         {
                             exportInner.Export(fileNameInner);
+                            string flagStandart = "";
+                            if (doc.FindVariable("Нестандартная_панель") != null)
+                            {
+                                var flagStandVariable = doc.FindVariable("Нестандартная_панель");
+                                if (doc.FindVariable("Нестандартная_панель").RealValue == 1)
+                                    flagStandart = "true";
+                                else if (doc.FindVariable("Нестандартная_панель").RealValue == 0)
+                                    flagStandart = "false";
+                            }
+
+                            listObjects.Add(new ExcelObject()
+                            {
+                                Наименование = doc.FindVariable("$Наименование_2").TextValue,
+                                Обозначение = doc.FindVariable("$Обозначение_2").TextValue,
+                                Нестандартные = flagStandart,
+                                Размер = doc.FindVariable("$Размер").TextValue,
+                            });
                         }
                         doc.CancelChanges();
 
 
-                        doc.Regenerate(rg);
-
-                        reg = true;
-                        ExportToStep exportSTPRU = new ExportToStep(doc);
-                        string fileNameSTPRU = ($"{pathSTPRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}.stp");
-                        if (!File.Exists(fileNameSTPRU))
-                        {
-                            sw.WriteLine(offset + "Имя: " + name);
-                            sw.WriteLine(offset + "Путь: " + path);
-                            sw.WriteLine(offset + "Наименование: " + naim);
-                            sw.WriteLine(offset + "Обозначение: " + oboz);
-                            sw.WriteLine(offset + "STEP Export: OK");
-                            exportSTPRU.Export(fileNameSTPRU);
-                        }
+                        
                     }
                     if (exportDXF)
                     {
@@ -481,6 +549,29 @@ namespace FRAGMENTSTREE_PLG
                         }
                         reg = false;
                     }
+
+                    int iter = 0;
+                    EX_WRITE.Sht.Range[$"{GetLetter(0)}{iter}"].Value2 = "Наименование";
+                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{iter}"].Value2 = "Обозначение";
+                    EX_WRITE.Sht.Range[$"{GetLetter(2)}{iter}"].Value2 = "Нестандартные";
+                    EX_WRITE.Sht.Range[$"{GetLetter(3)}{iter}"].Value2 = "Размер";
+                    foreach (var excelObject in listObjects)
+                    {
+                        iter++;
+                        EX_WRITE.Sht.Range[$"{GetLetter(0)}{iter+1}"].Value2 = excelObject.Наименование;
+                        EX_WRITE.Sht.Range[$"{GetLetter(1)}{iter+1}"].Value2 = excelObject.Обозначение;
+                        EX_WRITE.Sht.Range[$"{GetLetter(2)}{iter+1}"].Value2 = excelObject.Нестандартные;
+                        EX_WRITE.Sht.Range[$"{GetLetter(3)}{iter+1}"].Value2 = excelObject.Размер;
+                    }
+
+                    EX_WRITE.App.DisplayAlerts = false;
+                    EX_WRITE.WB.SaveAs(xlFileName.Substring(0, xlFileName.Length) + "\\" + "Панели.xlsx");
+                    EX_WRITE.App.Quit();
+                    EX_WRITE.App.DisplayAlerts = true;
+
+                    Marshal.ReleaseComObject(EX_WRITE.Sht);
+                    Marshal.ReleaseComObject(EX_WRITE.WB);
+                    Marshal.ReleaseComObject(EX_WRITE.App);
                 }
             }
             int n_fr = doc.GetFragments3D().Count;
@@ -567,6 +658,33 @@ namespace FRAGMENTSTREE_PLG
             }
             return;
         }
+        public struct EXL
+        {
+            public Excel.Application App;
+            public Excel.Workbooks WBs;
+            public Excel.Workbook WB;
+            public Excel.Sheets Shts;
+            public Excel.Worksheet Sht;
+            public Excel.Range cell;
+            public bool load;
+        }
+        static private string GetLetter(int nn)
+        {
+            string p1;
+
+            int n2 = nn / 26;
+            if (n2 > 0)
+            {
+                p1 = ((char)((int)('A') + n2 - 1)).ToString() + ((char)((int)('A') + nn - n2 * 26)).ToString();
+            }
+            else
+            {
+                p1 = ((char)((int)('A') + nn)).ToString();
+            }
+
+            return p1;
+        }
+
         #region Set
         private void Set(Document doc, StreamWriter sw, string name, string path, string oboz, string naim, int lev)
         {
@@ -770,5 +888,7 @@ namespace FRAGMENTSTREE_PLG
             pSTEP = steps;
             pPDF = pdfs;
         }
+
+
     }
 }
