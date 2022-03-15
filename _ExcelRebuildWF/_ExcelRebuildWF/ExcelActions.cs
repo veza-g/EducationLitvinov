@@ -306,7 +306,6 @@ namespace _ExcelRebuildWF
                     if (EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2 != null)
                         EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2 = (double)EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2;
 
-                    //EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].NumberFormat = "#,##0.00";
                     EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2 = materialSumm.ToString().Replace(" ", ".").Replace(",", ".");
                     excelIndex++;
                 }
