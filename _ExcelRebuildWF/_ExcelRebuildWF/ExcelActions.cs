@@ -122,9 +122,9 @@ namespace _ExcelRebuildWF
                         {
                             materials.Add(listObjects[i].Наименование);
                         }
-                        if (listObjects[i].Наименование.Contains("Наполнение") && !materials.Contains(listObjects[i].Материал))
+                        if (listObjects[i].Наименование.Contains("Наполнение") && !materials.Contains(listObjects[i].Обозначение))
                         {
-                            materials.Add(listObjects[i].Материал);
+                            materials.Add(listObjects[i].Обозначение);
                         }
                     }
 
@@ -197,10 +197,9 @@ namespace _ExcelRebuildWF
                 int excelIndex = 0;
 
                 materials.Sort();
-
+                
                 foreach (string material in materials)
                 {
-
                     double materialSumm = 0;
                     int count = 0;
                     foreach (var listObject in listObjects)
@@ -225,7 +224,7 @@ namespace _ExcelRebuildWF
                             if (listObject.Материал == material && (listObject.Материал.Contains("Прокат") ||
                                 listObject.Материал.Contains("Лист") || listObject.Материал.Contains("Рулон")))
                             {
-                                materialSumm += listObject.Вес;
+                                materialSumm += listObject.Вес * listObject.Количество;
                                 EX_WRITE.Sht.Range[$"{GetLetter(2)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
                                 count++;
@@ -234,7 +233,7 @@ namespace _ExcelRebuildWF
                             if (listObject.Материал == material && (listObject.Материал.Contains("Ригель") ||
                                 listObject.Материал.Contains("Стойка")))
                             {
-                                materialSumm += listObject.Размер / 1000;
+                                materialSumm += listObject.Размер / 1000 * listObject.Количество;
                                 EX_WRITE.Sht.Range[$"{GetLetter(3)}{excelIndex + 1}"].Interior.Color =
                                     System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow);
                                 count++;
@@ -299,6 +298,7 @@ namespace _ExcelRebuildWF
                             }
                         }
                     }
+
                     EX_WRITE.Sht.Range[$"{GetLetter(0)}{excelIndex + 1}"].Value2 = material;
 
 
@@ -306,7 +306,7 @@ namespace _ExcelRebuildWF
                     if (EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2 != null)
                         EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2 = (double)EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2;
 
-                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2 = materialSumm.ToString().Replace(" ", ".").Replace(",", ".");
+                    EX_WRITE.Sht.Range[$"{GetLetter(1)}{excelIndex + 1}"].Value2 = materialSumm.ToString();//.Replace(" ", ".").Replace(",", ".");
                     excelIndex++;
                 }
 
@@ -330,7 +330,7 @@ namespace _ExcelRebuildWF
 
 
                 //EX_WRITE.WB.SaveAs(@"C:\Users\litvinov.ls\Documents\Book1.xlsx");
-                EX_WRITE.WB.SaveAs(xlFileName.Substring(0, xlFileName.Length - 5) + "_1С.xlsx");
+                EX_WRITE.WB.SaveAs(xlFileName.Substring(0, xlFileName.Length - 5) + "_1С.xls");
                 EX_WRITE.App.Quit();
 
                 Marshal.ReleaseComObject(EX_WRITE.Sht);
@@ -374,7 +374,6 @@ namespace _ExcelRebuildWF
             public Excel.Sheets Shts;
             public Excel.Worksheet Sht;
             public Excel.Range cell;
-            public bool load;
         }
 
         static private string GetLetter(int nn)
