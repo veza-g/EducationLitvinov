@@ -122,9 +122,9 @@ namespace _ExcelRebuildWF
                         {
                             materials.Add(listObjects[i].Наименование);
                         }
-                        if (listObjects[i].Наименование.Contains("Наполнение") && !materials.Contains(listObjects[i].Обозначение))
+                        if (listObjects[i].Наименование.Contains("Наполнение") && !materials.Contains($"{listObjects[i].Обозначение} {listObjects[i].Наименование}"))
                         {
-                            materials.Add(listObjects[i].Обозначение);
+                            materials.Add($"{listObjects[i].Обозначение} {listObjects[i].Наименование}");
                         }
                     }
 
@@ -276,7 +276,7 @@ namespace _ExcelRebuildWF
                                 count++;
                                 EX_WRITE.Sht.Range[$"{GetLetter(7)}{excelIndex + 1}"].Value2 = count;
                             }
-                            else if (listObject.Материал == material)
+                            else if ($"{listObject.Обозначение} {listObject.Наименование}" == material)
                             {
                                 materialSumm += listObject.Количество;
                                 EX_WRITE.Sht.Range[$"{GetLetter(8)}{excelIndex + 1}"].Interior.Color =
