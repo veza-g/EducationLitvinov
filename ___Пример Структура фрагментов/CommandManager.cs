@@ -492,11 +492,11 @@ namespace FRAGMENTSTREE_PLG
             {
                 if (frag.Suppression.Suppress) continue;
                 if (!frag.VisibleInScene) continue;
-                if (frag.Name.Contains("Болт") || frag.Name.Contains("Винт") || frag.Name.Contains("Заклепка") || frag.Name.Contains("Кольцо") ||
-                    frag.Name.Contains("Ось") || frag.Name.Contains("Гайка") || frag.Name.Contains("Шайба") || frag.Name.Contains("Уплотнитель") ||
-                    frag.Name.Contains("Подшипник") || frag.Name.Contains("Шпилька") || frag.Name.Contains("Шплинт") || frag.Name.Contains("Шпонка") ||
-                    frag.Name.Contains("Штифт") || frag.Name.Contains("Шуруп")) continue;
-
+                //if (!frag.Layer.Visible) continue;
+                if (frag.FileName.Contains("Болт") || frag.FileName.Contains("Винт") || frag.FileName.Contains("Заклепка") || frag.FileName.Contains("Кольцо") ||
+                    frag.FileName.Contains("Ось") || frag.FileName.Contains("Гайка") || frag.FileName.Contains("Шайба") || frag.FileName.Contains("Уплотнитель") ||
+                    frag.FileName.Contains("Подшипник") || frag.FileName.Contains("Шпилька") || frag.FileName.Contains("Шплинт") || frag.FileName.Contains("Шпонка") ||
+                    frag.FileName.Contains("Штифт") || frag.FileName.Contains("Шуруп")) continue;
                 {
                     Document docFR = null;
                     string obozF = "-";
