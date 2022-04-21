@@ -23,6 +23,7 @@ namespace FRAGMENTSTREE_PLG
         public string BasePath;
         public string pathSTPRU, pathDXFRU, pathPDFRU;
         public bool exportDXF, exportSTEP, exportPDF;
+        public bool reg = false;
         DateTime t1, t2; //поля класса формы
         private readonly System.Diagnostics.Stopwatch uptime = new System.Diagnostics.Stopwatch();
 
@@ -105,15 +106,25 @@ namespace FRAGMENTSTREE_PLG
                     {
                         string oboz = "-";
                         string naim = "-";
-                        Variable voboz = doc.FindVariable("$Обозначение");
-                        Variable vnaim = doc.FindVariable("$Наименование");
+                        Variable voboz;
+                        Variable vnaim;
+                        if (doc.FindVariable("$Обозначение") != null)
+                        {
+                            voboz = doc.FindVariable("$Обозначение");
+                        }
+                        else voboz = null;
+                        if (doc.FindVariable("$Наименование") != null)
+                        {
+                            vnaim = doc.FindVariable("$Наименование");
+                        }
+                        else vnaim = null;
 
                         if (voboz != null)
                         {
                             oboz = voboz.TextValue;
                         }
                         else oboz = "";
-                        if (naim != null)
+                        if (vnaim != null)
                         {
                             naim = vnaim.TextValue;
                         }
@@ -145,14 +156,14 @@ namespace FRAGMENTSTREE_PLG
                         TFlex.Application.FileLinksAutoRefresh = TFlex.Application.FileLinksRefreshMode.AutoRefresh;
                         Profile = new List<string>();
                         RegenerateOptions rg = new RegenerateOptions();
-                        rg.Full = true;
+                        //rg.Full = true;
                         rg.UpdateAllLinks = true;
                         rg.UpdateProductStructures = true;
                         rg.UpdateBillOfMaterials = true;
-                        //rg.UpdateBillOfMaterials = true;
-                        rg.Projections = true;
+                        //rg.Projections = true;
                         //rg.UpdateDrawingViews = true;
                         doc.Regenerate(rg);
+                        reg = true;
                         GetFragmentData(doc, sw, file_name, doc.FilePath, oboz, naim, Level);
 
                     }
@@ -294,16 +305,31 @@ namespace FRAGMENTSTREE_PLG
 
         private void GetFragmentData(Document doc, StreamWriter sw, string name, string path, string oboz, string naim, int lev)
         {
+            /*doc.BeginChanges("1");
+            foreach (ProductStructure product in doc.GetProductStructures())
+            {
+                product.Regenerate(true);
+                product.UpdateStructure();
+                product.UpdateReports();
+                //string abc = product.GetTextProperty("Раздел");
+                List<string> pp = new List<string>();
+                foreach (var rows in product.GetAllRowElements())
+                {
+                    pp.Add(rows.Name);
+                }
+            }
+            doc.EndChanges();*/
+
             RegenerateOptions rg = new RegenerateOptions();
-            rg.Full = true;
+            //rg.Full = true;
             rg.UpdateAllLinks = true;
             rg.UpdateProductStructures = true;
             rg.UpdateBillOfMaterials = true;
-            rg.Projections = true;
+            //rg.Projections = true;
             //rg.UpdateDrawingViews = true;
             string offset = "";
             string confName;
-            bool reg = false;
+            
             for (int nn = 0; nn < lev; nn++)
                 offset += "   ";
             /*if (doc.ModelConfigurations.GetConfigurationWithCurrentValues() != null)
@@ -312,15 +338,39 @@ namespace FRAGMENTSTREE_PLG
             }
             else*/
             confName = oboz;
-            if (((doc.FindVariable("$Наименование").TextValue != "") || (doc.FindVariable("$Обозначение").TextValue != ""))
-                && (doc.ModelConfigurations.ConfigurationCount != 0))
+
+            Variable voboz;
+            Variable vnaim;
+            if (doc.FindVariable("$Обозначение") != null)
+            {
+                voboz = doc.FindVariable("$Обозначение");
+            }
+            else voboz = null;
+            if (doc.FindVariable("$Наименование") != null)
+            {
+                vnaim = doc.FindVariable("$Наименование");
+            }
+            else vnaim = null;
+
+            if (voboz != null)
+            {
+                oboz = voboz.TextValue;
+            }
+            else oboz = "";
+            if (vnaim != null)
+            {
+                naim = vnaim.TextValue;
+            }
+            else naim = "";
+
+            if (((naim != "") || (oboz != "")) && (doc.ModelConfigurations.ConfigurationCount != 0))
             {
                 if (exportSTEP)
                 {
                     doc.Regenerate(rg);
                     reg = true;
                     ExportToStep exportSTPRU = new ExportToStep(doc);
-                    string fileNameSTPRU = ($"{pathSTPRU}\\{confName}_{doc.FindVariable("$Наименование").TextValue}.stp");
+                    string fileNameSTPRU = ($"{pathSTPRU}\\{confName}_{naim}.stp");
                     if (!File.Exists(fileNameSTPRU))
                     {
                         sw.WriteLine(offset + "Имя: " + name);
@@ -345,7 +395,7 @@ namespace FRAGMENTSTREE_PLG
                         pgDXFRU.Add(pgRU2);
                         exportDXFRU.ExportPages = pgDXFRU;
                         exportDXFRU.BiarcInterpolationForSplines = true;
-                        string fileNameDXFRU = ($"{pathDXFRU}\\{confName}_{doc.FindVariable("$Наименование").TextValue}.dxf");
+                        string fileNameDXFRU = ($"{pathDXFRU}\\{confName}_{naim}.dxf");
                         if (!File.Exists(fileNameDXFRU))
                         {
                             sw.WriteLine(offset + "DXF Export: OK");
@@ -375,7 +425,7 @@ namespace FRAGMENTSTREE_PLG
                     {
                         exportPDFnormalconf.ExportPages = pgnormalconf;
                         exportPDFnormalconf.OpenExportFile = false;
-                        string fileNamePDFRU = ($"{pathPDFRU}\\{confName}_{doc.FindVariable("$Наименование").TextValue}.pdf");
+                        string fileNamePDFRU = ($"{pathPDFRU}\\{confName}_{naim}.pdf");
                         if (!File.Exists(fileNamePDFRU))
                         {
                             sw.WriteLine(offset + "PDF Export: OK");
@@ -388,7 +438,7 @@ namespace FRAGMENTSTREE_PLG
                     {
                         exportPDFBOMconf.ExportPages = pgPDFBOMconf;
                         exportPDFBOMconf.OpenExportFile = false;
-                        string fileNamePDFRU = ($"{pathPDFRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}_СП.pdf");
+                        string fileNamePDFRU = ($"{pathPDFRU}\\{oboz}_{naim}_СП.pdf");
                         if (!File.Exists(fileNamePDFRU))
                         {
                             sw.WriteLine(offset + "PDFBOM Export: OK");
@@ -398,14 +448,14 @@ namespace FRAGMENTSTREE_PLG
                     reg = false;
                 }
             }
-            else if ((doc.FindVariable("$Наименование").TextValue != "") || (doc.FindVariable("$Обозначение").TextValue != ""))
+            else if (naim != "" || oboz != "")
             {
                 if (exportSTEP)
                 {
                     doc.Regenerate(rg);
                     reg = true;
                     ExportToStep exportSTPRU = new ExportToStep(doc);
-                    string fileNameSTPRU = ($"{pathSTPRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}.stp");
+                    string fileNameSTPRU = ($"{pathSTPRU}\\{oboz}_{naim}.stp");
                     if (!File.Exists(fileNameSTPRU))
                     {
                         sw.WriteLine(offset + "Имя: " + name);
@@ -429,7 +479,7 @@ namespace FRAGMENTSTREE_PLG
                         pgDXFRU.Add(pgRUDXF);
                         pgDXFRU.Add(pgRUDXF2);
                         exportDXFRU.ExportPages = pgDXFRU;
-                        string fileNameDXFRU = ($"{pathDXFRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}.dxf");
+                        string fileNameDXFRU = ($"{pathDXFRU}\\{oboz}_{naim}.dxf");
                         if (!File.Exists(fileNameDXFRU))
                         {
                             sw.WriteLine(offset + "DXF Export: OK");
@@ -441,21 +491,6 @@ namespace FRAGMENTSTREE_PLG
                 {
 
                     if (!reg) doc.Regenerate(rg);
-                    /*doc.BeginChanges("1");
-                    foreach (ProductStructure product in doc.GetProductStructures())
-                    {
-                        product.Regenerate(true);
-                        product.UpdateStructure();
-                        product.UpdateReports();
-                        ProductStructureExcelExportOptions options = new ProductStructureExcelExportOptions();
-                        options.FilePath = ($"{pathPDFRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}_{product.Name}.xlsx");
-                        options.Silent = true;
-                        TFlex.Model.Data.ProductStructure.GroupingRules item = new TFlex.Model.Data.ProductStructure.GroupingRules();
-                        item.Name = "Спецификация";
-                        options.GroupingUID = item.ID;
-                        product.ExportToExcel(options);
-                }
-                    doc.EndChanges();*/
 
                     ExportToPDF exportPDFnormalRU = new ExportToPDF(doc);
                     List<Page> pgPDFnormalRU = GetPagesPDF(doc, PageType.Normal);
@@ -463,7 +498,7 @@ namespace FRAGMENTSTREE_PLG
                     {
                         exportPDFnormalRU.ExportPages = pgPDFnormalRU;
                         exportPDFnormalRU.OpenExportFile = false;
-                        string fileNamePDFRU = ($"{pathPDFRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}.pdf");
+                        string fileNamePDFRU = ($"{pathPDFRU}\\{oboz}_{naim}.pdf");
                         if (!File.Exists(fileNamePDFRU))
                         {
                             sw.WriteLine(offset + "PDFnormal Export: OK");
@@ -477,7 +512,7 @@ namespace FRAGMENTSTREE_PLG
                     {
                         exportPDFBOMRU.ExportPages = pgPDFBOMRU;
                         exportPDFBOMRU.OpenExportFile = false;
-                        string fileNamePDFRU = ($"{pathPDFRU}\\{doc.FindVariable("$Обозначение").TextValue}_{doc.FindVariable("$Наименование").TextValue}_СП.pdf");
+                        string fileNamePDFRU = ($"{pathPDFRU}\\{oboz}_{naim}_СП.pdf");
                         if (!File.Exists(fileNamePDFRU))
                         {
                             sw.WriteLine(offset + "PDFBOM Export: OK");
@@ -492,11 +527,11 @@ namespace FRAGMENTSTREE_PLG
             {
                 if (frag.Suppression.Suppress) continue;
                 if (!frag.VisibleInScene) continue;
-                //if (!frag.Layer.Visible) continue;
+                if (frag.Layer.Hidden) continue;
                 if (frag.FileName.Contains("Болт") || frag.FileName.Contains("Винт") || frag.FileName.Contains("Заклепка") || frag.FileName.Contains("Кольцо") ||
                     frag.FileName.Contains("Ось") || frag.FileName.Contains("Гайка") || frag.FileName.Contains("Шайба") || frag.FileName.Contains("Уплотнитель") ||
                     frag.FileName.Contains("Подшипник") || frag.FileName.Contains("Шпилька") || frag.FileName.Contains("Шплинт") || frag.FileName.Contains("Шпонка") ||
-                    frag.FileName.Contains("Штифт") || frag.FileName.Contains("Шуруп")) continue;
+                    frag.FileName.Contains("Штифт") || frag.FileName.Contains("Шуруп") || frag.FileName.Contains("Этикетка"))  continue;
                 {
                     Document docFR = null;
                     string obozF = "-";
@@ -533,8 +568,8 @@ namespace FRAGMENTSTREE_PLG
 
                         if (docFR != null)
                         {
-                            Variable voboz = docFR.FindVariable("$Обозначение");
-                            Variable vnaim = docFR.FindVariable("$Наименование");
+                            //Variable voboz = docFR.FindVariable("$Обозначение");
+                            //Variable vnaim = docFR.FindVariable("$Наименование");
                             if (vnaim != null)
                             {
                                 naimF = vnaim.TextValue;
